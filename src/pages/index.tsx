@@ -8,9 +8,24 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { RouterOutputs, api } from "~/utils/api";
 import dayjs from "dayjs";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
+import { useState } from "react";
+import { contextProps } from "@trpc/react-query/shared";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+
+  const [input, setInput] = useState("");
+  const [bodyInput, setBodyInput] = useState("");
+
+  const ctx = api.useContext();
+
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      setBodyInput("");
+      void ctx.posts.getAll.invalidate();
+    },
+  });
 
   if (!user) return null;
 
@@ -23,11 +38,26 @@ const CreatePostWizard = () => {
         width={56}
         height={56}
       ></Image>
-      <input
-        type="text"
-        placeholder="Ask a question"
-        className="grow bg-transparent outline-none"
-      />
+      <form className="flex grow flex-col">
+        <input
+          type="text"
+          placeholder="Ask a question"
+          className="grow bg-transparent outline-none"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          disabled={isPosting}
+        />
+        <textarea
+          placeholder="More detail please"
+          className="grow bg-transparent outline-none"
+          value={bodyInput}
+          onChange={(e) => setBodyInput(e.target.value)}
+          disabled={isPosting}
+        ></textarea>
+      </form>
+      <button onClick={() => mutate({ title: input, body: bodyInput })}>
+        Post
+      </button>
     </div>
   );
 };
