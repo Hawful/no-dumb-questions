@@ -67,7 +67,7 @@ const PostView = (props: PostWithUser) => {
   dayjs.extend(relativeTime);
   const { post, author } = props;
   return (
-    <div key={post.id} className="flex flex-col border-slate-600 p-4">
+    <div className="flex flex-col border-slate-600 p-4">
       <div className="flex flex-row ">
         <Image
           className="h-14 w-14 rounded-full"
@@ -98,7 +98,7 @@ const Feed = () => {
   return (
     <div className="flex flex-col">
       {data?.map((fullPost) => (
-        <PostView {...fullPost}></PostView>
+        <PostView {...fullPost} key={fullPost.post.id}></PostView>
       ))}
     </div>
   );
