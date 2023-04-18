@@ -2,14 +2,13 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import { SignIn, SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-
-import { RouterOutputs, api } from "~/utils/api";
+import type { RouterOutputs } from "~/utils/api";
+import { api } from "~/utils/api";
 import dayjs from "dayjs";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
-import { contextProps } from "@trpc/react-query/shared";
 import { toast } from "react-hot-toast";
 
 const CreatePostWizard = () => {
@@ -82,6 +81,10 @@ type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 const PostView = (props: PostWithUser) => {
   dayjs.extend(relativeTime);
   const { post, author } = props;
+  if (!author || !post) {
+    return <div></div>;
+  }
+  const authorName = author.username ? `@${author.username}` : "";
   return (
     <div className="flex flex-col border-slate-600 p-4">
       <div className="flex flex-row ">
@@ -94,8 +97,8 @@ const PostView = (props: PostWithUser) => {
         ></Image>
         <div className="flex flex-col p-2">
           <div className="flex">
-            <Link href={`/@${author.username}`}>
-              <span className="text-slate-300">{`@${author.username}`}</span>
+            <Link href={`/${authorName}`}>
+              <span className="text-slate-300">{`${authorName}`}</span>
             </Link>
             <Link href={`/post/${post.id}`}>
               <span className=" font-thin text-slate-400">{` -  ${dayjs(
