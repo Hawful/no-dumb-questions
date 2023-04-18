@@ -19,8 +19,6 @@ import { TRPCError } from "@trpc/server";
 
 import { prisma } from "~/server/db";
 
-type CreateContextOptions = Record<string, never>;
-
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
  * it from here.
