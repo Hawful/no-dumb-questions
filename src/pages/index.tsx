@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
 import { contextProps } from "@trpc/react-query/shared";
+import { toast } from "react-hot-toast";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -24,6 +25,14 @@ const CreatePostWizard = () => {
       setInput("");
       setBodyInput("");
       void ctx.posts.getAll.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.title;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Failed for a strange reason, try again later");
+      }
     },
   });
 
@@ -55,9 +64,16 @@ const CreatePostWizard = () => {
           disabled={isPosting}
         ></textarea>
       </form>
-      <button onClick={() => mutate({ title: input, body: bodyInput })}>
-        Post
-      </button>
+      {input !== "" && !isPosting && (
+        <button onClick={() => mutate({ title: input, body: bodyInput })}>
+          Post
+        </button>
+      )}
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={30} />
+        </div>
+      )}
     </div>
   );
 };
@@ -78,10 +94,14 @@ const PostView = (props: PostWithUser) => {
         ></Image>
         <div className="flex flex-col p-2">
           <div className="flex">
-            <span className="text-slate-300">{`@${author.username}`}</span>
-            <span className=" font-thin text-slate-400">{` -  ${dayjs(
-              post.createdAt
-            ).fromNow()}`}</span>
+            <Link href={`/@${author.username}`}>
+              <span className="text-slate-300">{`@${author.username}`}</span>
+            </Link>
+            <Link href={`/post/${post.id}`}>
+              <span className=" font-thin text-slate-400">{` -  ${dayjs(
+                post.createdAt
+              ).fromNow()}`}</span>
+            </Link>
           </div>
           <div className="border-b-slate-700 p-1 pb-0">{post.title}</div>
           <div className="border-b-slate-600 p-2 pl-8">{post.body}</div>
