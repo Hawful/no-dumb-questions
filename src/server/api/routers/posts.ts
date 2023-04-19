@@ -4,37 +4,13 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis";
+import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 
 import {
   createTRPCRouter,
   publicProcedure,
   privateProcedure,
 } from "~/server/api/trpc";
-
-const filterUserForClient = (user: User) => {
-  if (!user.username || user.username === "" || user.username === null)
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Username not found",
-    });
-
-  if (!user.profileImageUrl)
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Profile Image not found",
-    });
-  if (!user.id)
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "User ID not found",
-    });
-
-  return {
-    id: user.id,
-    username: user.username,
-    profileImageUrl: user.profileImageUrl,
-  };
-};
 
 // Create a new ratelimiter, that allows 4 requests per 1 minute
 const ratelimit = new Ratelimit({
