@@ -11,6 +11,7 @@ import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { PageLayout } from "~/components/layout";
+import { Card } from "~/components/card";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -117,13 +118,32 @@ const PostView = (props: PostWithUser) => {
 
 const Feed = () => {
   const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
+  let count = 0;
 
   if (postsLoading) return <LoadingPage />;
   return (
     <div className="flex flex-col">
-      {data?.map((fullPost) => (
-        <PostView {...fullPost} key={fullPost.post.id}></PostView>
-      ))}
+      {data?.map((fullPost) => {
+        let color = "";
+        switch (count) {
+          case 0:
+            color = "shadow-hard-m-magenta hover:shadow-hard-xl-magenta";
+            break;
+          case 1:
+            color = "shadow-hard-m-yellow hover:shadow-hard-xl-yellow";
+            break;
+          case 2:
+            color = "shadow-hard-m-cyan hover:shadow-hard-xl-cyan";
+            break;
+        }
+        count++;
+        if (count === 3) count = 0;
+        return (
+          <Card className={color} key={fullPost.post.id}>
+            <PostView {...fullPost}></PostView>
+          </Card>
+        );
+      })}
     </div>
   );
 };
@@ -141,7 +161,6 @@ const Home: NextPage = () => {
       <Head>
         <title>No Dumb Questions</title>
         <meta name="description" content="❓" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <PageLayout>
         <div className="w-full border-y border-slate-600 p-4">
